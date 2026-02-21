@@ -1,5 +1,0 @@
-C:\Users\emirs\source\repos\MRP\MRP\Persistence\obj\Debug\net8.0\Persistence.csproj.AssemblyReference.cache
-C:\Users\emirs\source\repos\MRP\MRP\Persistence\obj\Debug\net8.0\Persistence.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\emirs\source\repos\MRP\MRP\Persistence\obj\Debug\net8.0\Persistence.AssemblyInfoInputs.cache
-C:\Users\emirs\source\repos\MRP\MRP\Persistence\obj\Debug\net8.0\Persistence.AssemblyInfo.cs
-C:\Users\emirs\source\repos\MRP\MRP\Persistence\obj\Debug\net8.0\Persistence.csproj.CoreCompileInputs.cache
