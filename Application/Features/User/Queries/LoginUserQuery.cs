@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Wrappers;
 using Domain.Common.Attributes;
 using MediatR;
+using Persistence.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,8 @@ namespace Application.Features.User.Queries
             }
             public async Task<Response<UserLoginDto>> Handle(LoginUserQuery request, CancellationToken cancellationToken)
             {
-                var user = _context.Users.Where(t => t.UserName == request.UserName).Select(t=> new UserLoginDto
+                var hashedPassword = EncryptionHelper.Encrypt(request.Password);
+                var user = _context.Users.Where(t => t.UserName == request.UserName && t.Password== hashedPassword).Select(t=> new UserLoginDto
                 {
                     UserName=t.UserName,
                     IsAdmin=t.IsAdmin

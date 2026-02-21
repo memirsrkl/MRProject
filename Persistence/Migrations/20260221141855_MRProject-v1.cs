@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class MRProject1 : Migration
+    public partial class MRProjectv1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,6 +57,7 @@ namespace Persistence.Migrations
                     ReservationDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     StartTime = table.Column<DateTime>(type: "TEXT", nullable: false),
                     EndTime = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    MeetingRoomId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedTime = table.Column<DateTime>(type: "TEXT", nullable: true),
@@ -65,6 +66,12 @@ namespace Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Reservations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Reservations_MeetingRooms_MeetingRoomId",
+                        column: x => x.MeetingRoomId,
+                        principalTable: "MeetingRooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Reservations_Users_UserId",
                         column: x => x.UserId,
@@ -80,7 +87,7 @@ namespace Persistence.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     UserId = table.Column<Guid>(type: "TEXT", nullable: false),
                     MeetingRoomId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserId1 = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ReservationId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedTime = table.Column<DateTime>(type: "TEXT", nullable: true),
                     UpdatedTime = table.Column<DateTime>(type: "TEXT", nullable: true),
@@ -90,18 +97,29 @@ namespace Persistence.Migrations
                 {
                     table.PrimaryKey("PK_ReservationUsers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ReservationUsers_Reservations_UserId",
-                        column: x => x.UserId,
+                        name: "FK_ReservationUsers_MeetingRooms_MeetingRoomId",
+                        column: x => x.MeetingRoomId,
+                        principalTable: "MeetingRooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ReservationUsers_Reservations_ReservationId",
+                        column: x => x.ReservationId,
                         principalTable: "Reservations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ReservationUsers_Users_UserId1",
-                        column: x => x.UserId1,
+                        name: "FK_ReservationUsers_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reservations_MeetingRoomId",
+                table: "Reservations",
+                column: "MeetingRoomId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reservations_UserId",
@@ -109,27 +127,32 @@ namespace Persistence.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ReservationUsers_MeetingRoomId",
+                table: "ReservationUsers",
+                column: "MeetingRoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReservationUsers_ReservationId",
+                table: "ReservationUsers",
+                column: "ReservationId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ReservationUsers_UserId",
                 table: "ReservationUsers",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ReservationUsers_UserId1",
-                table: "ReservationUsers",
-                column: "UserId1");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "MeetingRooms");
-
-            migrationBuilder.DropTable(
                 name: "ReservationUsers");
 
             migrationBuilder.DropTable(
                 name: "Reservations");
+
+            migrationBuilder.DropTable(
+                name: "MeetingRooms");
 
             migrationBuilder.DropTable(
                 name: "Users");

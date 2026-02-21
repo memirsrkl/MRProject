@@ -1,0 +1,134 @@
+﻿@model List<Application.DTOs.UserListDTO>
+
+@{
+    ViewData["Title"] = "Kullanıcılar";
+}
+
+<div class="card shadow border-0">
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold mb-0">Kullanıcı Listesi</h4>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Ad Soyad</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th class="text-end">İşlem</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        int index = 1;
+                        foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@user.FullName</td>
+                                <td>@user.Email</td>
+                                <td>
+                                    @if (user.IsAdmin)
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            Admin
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Kullanıcı
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-end">
+                                    <button data-id="@user.Id" class="btn btn-sm btn-outline-primary changeAdminStatus">
+                                        Adminlik Değiştir
+                                    </button>
+                                </td>
+                            </tr>
+
+                            index++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                Henüz kullanıcı bulunmamaktadır.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+@section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+       $(document).on("click", ".changeAdminStatus", function () {
+
+    const button = $(this);
+    const userId = button.data("id");
+
+    Swal.fire({
+        title: "Emin misiniz?",
+        text: "Kullanıcının admin durumu değiştirilecek.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Evet",
+        cancelButtonText: "İptal"
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            $.ajax({
+                url: '/Users/ChangeStatuse',
+                type: 'POST',
+                data: { id: userId },
+                success: function (response) {
+                    debugger;
+                    if (response.succeeded) {
+
+                        Swal.fire("Başarılı", "Admin durumu güncellendi", "success");
+
+                        const badge = button.closest("tr").find("td:nth-child(4) span");
+
+                        if (badge.hasClass("bg-warning")) {
+                            badge.removeClass("bg-warning text-dark")
+                                 .addClass("bg-secondary")
+                                 .text("Kullanıcı");
+                        } else {
+                            badge.removeClass("bg-secondary")
+                                 .addClass("bg-warning text-dark")
+                                 .text("Admin");
+                        }
+
+                    } else {
+                        Swal.fire("Hata", response.message, "error");
+                    }
+                },
+                error: function () {
+                    Swal.fire("Hata", "Sunucu hatası oluştu", "error");
+                }
+            });
+
+        }
+    });
+
+});
+    </script>
+}

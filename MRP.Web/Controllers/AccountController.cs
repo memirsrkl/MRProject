@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Features.User.Commands;
 using Application.Features.User.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
@@ -21,7 +22,7 @@ namespace MRP.Web.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] LoginUserQuery loginUserQuery)
+        public async Task<IActionResult> Login(LoginUserQuery loginUserQuery)
         {
             var response = await Mediator.Send(loginUserQuery);
             if (response.Succeeded)
@@ -33,10 +34,26 @@ namespace MRP.Web.Controllers
                     await HttpContext.Session.CommitAsync();
                 }
                 else
-                    await LoginProcess(response.Data);
+                {
+                    try
+                    {
+                        await LoginProcess(response.Data);
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
             }
             return Ok(response);
 
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddUser(AddUserCommand command)
+        {
+            var response = await Mediator.Send(command);
+            return Json(response);
         }
         private async Task LoginProcess(UserLoginDto user)
         {
@@ -56,5 +73,15 @@ namespace MRP.Web.Controllers
             HttpContext.Session.SetString("currentUser",
                 JsonSerializer.Serialize(user));
         }
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Login", "Account");
+        }
     }
+
 }

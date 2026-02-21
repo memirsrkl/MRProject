@@ -26,8 +26,25 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<Reservation>().HasOne(t=>t.User).WithMany(t=>t.Reservations).HasForeignKey(t=>t.UserId);
-        modelBuilder.Entity<ReservationUser>().HasOne(t => t.Reservation).WithMany(t => t.ReservationUsers).HasForeignKey(t => t.Id);
-        modelBuilder.Entity<ReservationUser>().HasOne(t => t.Reservation).WithMany(t => t.ReservationUsers).HasForeignKey(t => t.UserId);
+
+        modelBuilder.Entity<Reservation>()
+            .HasOne(r => r.User)
+            .WithMany(u => u.Reservations)
+            .HasForeignKey(r => r.UserId);
+
+        modelBuilder.Entity<ReservationUser>()
+            .HasOne(ru => ru.Reservation)
+            .WithMany(r => r.ReservationUsers)
+            .HasForeignKey(ru => ru.ReservationId);
+
+        modelBuilder.Entity<ReservationUser>()
+            .HasOne(ru => ru.User)
+            .WithMany(u => u.ReservationUser)
+            .HasForeignKey(ru => ru.UserId);
+
+        modelBuilder.Entity<ReservationUser>()
+            .HasOne(ru => ru.MeetingRooms)
+            .WithMany(m => m.ReservationUsers)
+            .HasForeignKey(ru => ru.MeetingRoomId);
     }
 }

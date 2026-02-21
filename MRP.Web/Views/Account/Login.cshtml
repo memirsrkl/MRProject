@@ -1,0 +1,261 @@
+﻿@{
+    Layout=null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <title>Giriş Yap</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+            body {
+                background: linear-gradient(135deg, #4e73df, #1cc88a);
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .auth-card {
+                width: 900px;
+                max-width: 100%;
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+                background: #fff;
+            }
+
+            .auth-left {
+                background: linear-gradient(135deg, #4e73df, #224abe);
+                color: white;
+                padding: 50px;
+            }
+
+            .auth-right {
+                padding: 50px;
+            }
+
+            .form-control {
+                border-radius: 10px;
+            }
+
+            .btn-custom {
+                border-radius: 10px;
+                padding: 10px;
+            }
+
+            .toggle-link {
+                cursor: pointer;
+                color: #4e73df;
+                font-weight: 500;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card row g-0">
+    
+        <div class="col-md-6 auth-left d-flex flex-column justify-content-center">
+            <h2 class="mb-3">Hoş Geldiniz </h2>
+            <p>
+                Sisteme giriş yaparak işlemlerinizi hızlı ve güvenli bir şekilde gerçekleştirebilirsiniz.
+            </p>
+            <p class="mt-4">
+                Hesabınız yok mu?<br />
+                <span class="toggle-link" onclick="showRegister()">Kayıt Ol</span>
+            </p>
+        </div>
+
+        <div class="col-md-6 auth-right">
+
+            <div id="loginForm">
+                <h3 class="mb-4">Giriş Yap</h3>
+
+                <form id="loginFormSubmit" method="post" asp-controller="Account" asp-action="Login">
+                    <div class="mb-3">
+                        <label>Kullanıcı Adı</label>
+                        <input type="text" name="UserName" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Şifre</label>
+                        <input type="password" name="Password" class="form-control" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 btn-custom">
+                        Giriş Yap
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <small>
+                        Hesabın yok mu?
+                        <span class="toggle-link" onclick="showRegister()">Kayıt Ol</span>
+                    </small>
+                </div>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div id="registerForm" style="display:none;">
+                <h3 class="mb-4">Kayıt Ol</h3>
+
+                <form id="addUserForm"  method="post" asp-controller="Account" asp-action="AddUser">
+                    <div class="mb-3">
+                        <label>Ad</label>
+                        <input type="text" name="FirstName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Soyad</label>
+                        <input type="text" name="LastName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Kullanıcı Adı</label>
+                        <input type="text" name="UserName" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="Email" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Şifre</label>
+                        <input type="password" name="Password" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Şifre Tekrar</label>
+                        <input type="password" name="RePassword" class="form-control" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 btn-custom">
+                        Kayıt Ol
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <small>
+                        Zaten hesabın var mı?
+                        <span class="toggle-link" onclick="showLogin()">Giriş Yap</span>
+                    </small>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+            function showRegister() {
+                document.getElementById("loginForm").style.display = "none";
+                document.getElementById("registerForm").style.display = "block";
+            }
+
+            function showLogin() {
+                document.getElementById("registerForm").style.display = "none";
+                document.getElementById("loginForm").style.display = "block";
+            }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById("addUserForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        var formData = new FormData(this);
+
+        Swal.fire({
+        title: 'Kullanıcı ekleniyor...',
+        text: 'Lütfen bekleyiniz',
+        allowOutsideClick: false,
+        didOpen: () => {
+        Swal.showLoading();
+        }
+        });
+
+        fetch('/Account/AddUser', {
+        method: 'POST',
+        body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+
+        Swal.close();
+
+        if (data.succeeded === true) {
+        Swal.fire({
+        icon: 'success',
+        title: 'Başarılı!',
+        text: 'Kullanıcı başarıyla eklendi'
+        }).then(() => {
+        document.getElementById("addUserForm").reset();
+        });
+        } else {
+        Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: data.message
+        });
+        }
+        })
+        .catch(error => {
+        Swal.close();
+        Swal.fire({
+        icon: 'error',
+        title: 'Sunucu Hatası',
+        text: 'Beklenmeyen bir hata oluştu'
+        });
+        });
+        });
+    </script>
+    <script>
+        document.getElementById("loginFormSubmit").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        var formData = new FormData(this);
+
+        Swal.fire({
+        title: 'Giriş yapılıyor...',
+        text: 'Lütfen bekleyiniz',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+        });
+
+        fetch('/Account/Login', {
+        method: 'POST',
+        body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+        Swal.close();
+
+        if (data.succeeded === true) {
+        Swal.fire({
+        icon: 'success',
+        title: 'Başarılı!',
+        text: data.message || 'Giriş başarılı'
+        }).then(() => {
+        window.location.href = data.redirectUrl || '/Home/Index';
+        });
+        } else {
+        Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: data.message || 'Email veya şifre hatalı'
+        });
+        }
+        })
+        .catch(() => {
+        Swal.close();
+        Swal.fire({
+        icon: 'error',
+        title: 'Sunucu Hatası',
+        text: 'Beklenmeyen bir hata oluştu'
+        });
+        });
+        });
+    </script>
+</body>
+</html>

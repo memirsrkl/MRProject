@@ -1,0 +1,266 @@
+﻿@model Application.DTOs.UserCreateMeetingDTO
+
+<div class="container mt-4">
+
+    <h3 class="mb-4 fw-bold">Toplantı Odaları</h3>
+
+    <div class="row">
+
+        @foreach (var room in Model.MeetingsRoom)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow border-0 text-center h-100">
+                    <div class="card-body">
+
+                        <h5 class="fw-bold">@room.Name</h5>
+                        <p class="text-muted">@room.Location</p>
+
+                        <span class="badge bg-primary mb-3">
+                            Son 2 Haftalık Talep: @room.TotalRequest
+                        </span>
+
+                        <div>
+                            <button class="btn btn-dark btn-sm"
+                                    onclick="openCalendar('@room.Id', '@room.Name')">
+                                Takvimi Aç
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+
+ 
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow border-0"
+                 id="calendarWrapper"
+                 style="display:none;">
+                <div class="card-body">
+                    <h5 id="selectedRoomTitle" class="fw-bold mb-3"></h5>
+                    <div id="mainCalendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-4 shadow" id="reservationPanel" style="display:none;">
+        <div class="card-body">
+
+            <h5 class="fw-bold">Rezervasyon Oluştur</h5>
+
+            <p id="selectedTimeText" class="text-muted"></p>
+
+            <div id="userList" class="mb-3"></div>
+
+            <button class="btn btn-primary" onclick="saveReservation()">
+                Rezervasyonu Kaydet
+            </button>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <script>
+
+        let calendar;
+
+        function openCalendar(roomId, roomName) {
+
+        const wrapper = document.getElementById("calendarWrapper");
+        const title = document.getElementById("selectedRoomTitle");
+
+        wrapper.style.display = "block";
+        title.innerText = roomName + " Takvimi";
+
+        if (calendar) calendar.destroy();
+
+        calendar = new FullCalendar.Calendar(
+        document.getElementById("mainCalendar"),
+        {
+        initialView: 'timeGridWeek',
+        locale: 'tr',
+        firstDay: 1,
+        height: 650,
+
+        slotMinTime: "09:00:00",
+        slotMaxTime: "18:00:00",
+        slotDuration: "00:30:00",
+        allDaySlot: false,
+
+        headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'timeGridWeek,timeGridDay'
+        },
+
+        buttonText: {
+        today: 'Bugün',
+        week: 'Hafta',
+        day: 'Gün'
+        },
+
+        validRange: {
+        start: new Date(),
+        end: new Date(new Date().setDate(new Date().getDate() + 14))
+        },
+
+        selectable: true,
+        selectMirror: true,
+
+        select: function (info) {
+
+
+        const start = info.start;
+        const end = info.end;
+
+        window.selectedStart = start;
+        window.selectedEnd = end;
+        window.selectedRoomId = roomId;
+
+        const formatTR = (d) =>
+        d.toLocaleString("tr-TR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+        });
+
+        document.getElementById("reservationPanel").style.display = "block";
+        document.getElementById("selectedTimeText").innerText =
+        formatTR(start) + " - " + formatTR(end);
+
+        fetch(`/Meeting/GetAllMeetingUser?start=${start.toISOString()}&end=${end.toISOString()}`)
+        .then(res => res.json())
+        .then(users => {
+
+        let html = '';
+
+        users.forEach(u => {
+        if (u.isAvailable) {
+        html += `
+        <div class="form-check">
+        <input class="form-check-input userCheck"
+        type="checkbox"
+        value="${u.id}"
+        id="user_${u.id}">
+        -<label class="form-check-label" for="user_${u.id}">
+        ${u.userFullName}
+        </label>
+        </div>
+        `;
+        } else {
+        html += `
+        <div class="form-check">
+        <input class="form-check-input"
+        type="checkbox"
+        disabled>
+        <label class="form-check-label text-danger">
+        ${u.userFullName} (Meşgul)
+        </label>
+        </div>
+        `;
+        }
+
+        });
+
+        document.getElementById("userList").innerHTML = html;
+        });
+        },
+
+        events: function (fetchInfo, successCallback) {
+
+        fetch(`/Meeting/GetRoomReservations?roomId=${roomId}`)
+        .then(res => res.json())
+        .then(data => successCallback(data));
+        }
+        }
+        );
+
+        calendar.render();
+
+        window.scrollTo({
+        top: wrapper.offsetTop - 100,
+        behavior: "smooth"
+        });
+        }
+        function saveReservation() {
+
+        const checkedUsers = [];
+        document.querySelectorAll(".userCheck:checked")
+        .forEach(x => checkedUsers.push(x.value));
+
+        if (checkedUsers.length === 0) {
+        alert("En az 1 katılımcı seçmelisiniz.");
+        return;
+        }
+
+        const start = window.selectedStart;
+        const end = window.selectedEnd;
+
+        const payload = {
+
+        roomId: window.selectedRoomId,
+        Start: toLocalIsoNoZ(window.selectedStart),
+        End: toLocalIsoNoZ(window.selectedEnd),
+        date: start.toISOString().split("T")[0],
+        startTime: start.toTimeString().slice(0,5),
+        endTime: end.toTimeString().slice(0,5),
+        participantIds: checkedUsers
+        };
+
+        console.log("Gönderilen payload:", payload);
+
+        fetch('/Meeting/CreateReservation', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+
+        if (data.succeeded) {
+
+        Swal.fire({
+        icon: 'success',
+        title: 'Başarılı',
+        text: data.message
+        });
+
+        calendar.refetchEvents();
+        document.getElementById("reservationPanel").style.display = "none";
+
+        } else {
+
+        Swal.fire({
+        icon: 'error',
+        title: 'Hata',
+        text: data.message
+        });
+        }
+
+        })
+        .catch(err => {
+        console.error(err);
+        Swal.fire("Sunucu hatası oluştu");
+        });
+        }
+        function toLocalIsoNoZ(d) {
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
+        }
+    </script>
+
+}

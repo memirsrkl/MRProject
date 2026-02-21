@@ -13,8 +13,10 @@ namespace Domain.Entities
     {
         public Guid UserId { get; set; }
         public Guid MeetingRoomId { get; set; }
+        public Guid ReservationId { get; set; }
         public Reservation Reservation { get; set; }
         public Users User { get; set; }
         public ParticipantType Type { get; set; }
+        public MeetingRooms MeetingRooms { get; set; }
     }
 }

@@ -20,3 +20,54 @@ html {
 body {
   margin-bottom: 60px;
 }
+.fc {
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.fc-toolbar-title {
+    font-size: 22px !important;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.fc-button {
+    background-color: #343a40 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 6px 14px !important;
+    transition: 0.2s;
+}
+.navbar {
+    position: relative;
+    z-index: 2000 !important;
+}
+
+.dropdown-menu {
+    z-index: 3000 !important;
+}
+
+    .fc-button:hover {
+        background-color: #495057 !important;
+    }
+body {
+    background-color: #f8f9fa !important;
+}
+.fc-event {
+    border-radius: 8px !important;
+    padding: 4px 6px !important;
+    font-size: 13px;
+    font-weight: 500;
+    background-color: #e63946 !important;
+    border: none !important;
+}
+
+.fc-highlight {
+    background-color: rgba(13,110,253,0.2) !important;
+}
+
+#calendarWrapper {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    padding: 15px;
+}

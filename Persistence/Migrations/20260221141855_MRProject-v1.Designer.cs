@@ -11,8 +11,8 @@ using Persistence.Context;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260221012100_MRProject-1")]
-    partial class MRProject1
+    [Migration("20260221141855_MRProject-v1")]
+    partial class MRProjectv1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,6 +66,9 @@ namespace Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("MeetingRoomId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("ReservationDate")
                         .HasColumnType("TEXT");
 
@@ -82,6 +85,8 @@ namespace Persistence.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MeetingRoomId");
 
                     b.HasIndex("UserId");
 
@@ -103,6 +108,9 @@ namespace Persistence.Migrations
                     b.Property<Guid>("MeetingRoomId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("ReservationId")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 
@@ -112,14 +120,13 @@ namespace Persistence.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("UserId1")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("MeetingRoomId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("ReservationId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("ReservationUsers");
                 });
@@ -169,32 +176,55 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Reservation", b =>
                 {
+                    b.HasOne("Domain.Entities.MeetingRooms", "MeetingRoom")
+                        .WithMany("Reservations")
+                        .HasForeignKey("MeetingRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.Users", "User")
                         .WithMany("Reservations")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("MeetingRoom");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.ReservationUser", b =>
                 {
+                    b.HasOne("Domain.Entities.MeetingRooms", "MeetingRooms")
+                        .WithMany("ReservationUsers")
+                        .HasForeignKey("MeetingRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.Reservation", "Reservation")
                         .WithMany("ReservationUsers")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ReservationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Users", "User")
                         .WithMany("ReservationUser")
-                        .HasForeignKey("UserId1")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("MeetingRooms");
 
                     b.Navigation("Reservation");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.MeetingRooms", b =>
+                {
+                    b.Navigation("ReservationUsers");
+
+                    b.Navigation("Reservations");
                 });
 
             modelBuilder.Entity("Domain.Entities.Reservation", b =>
