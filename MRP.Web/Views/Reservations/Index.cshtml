@@ -1,0 +1,159 @@
+﻿@model List<Application.DTOs.AdminReservationDTO>
+
+<div class="container mt-4">
+    <h3 class="fw-bold mb-4">Tüm Rezervasyonlar</h3>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Tarih</th>
+                <th>Saat</th>
+                <th>Toplantı Odası</th>
+                <th>Durum</th>
+                <th>Kullanıcılar</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var collapseId = "users_" + item.Id;
+
+                <tr>
+                    <td>@item.Date</td>
+                    <td>@item.Start - @item.End</td>
+                    <td>@item.MeetingRoomName</td>
+
+                    <td>
+                        <span class="badge"
+                              style="background-color:@item.BackgroundColor;
+                            color:@item.TextColor;
+                            border:1px solid @item.BorderColor;">
+                            @item.StatusName
+                        </span>
+                    </td>
+
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@collapseId">
+                            Kullanıcıları Göster
+                        </button>
+                    </td>
+                    <td>
+                        @if (item.StatusName == "Bekliyor")
+                        {
+                            <button class="btn btn-sm btn-success me-1"
+                                    onclick="updateStatus('@item.Id', 'Approved')">
+                                Onayla
+                            </button>
+
+                            <button class="btn btn-sm btn-danger"
+                                    onclick="rejectReservation('@item.Id')">
+                                Reddet
+                            </button>
+                        }
+                        else if (item.StatusName == "Onaylandı")
+                        {
+                            <button class="btn btn-sm btn-danger"
+                                    onclick="rejectReservation('@item.Id')">
+                                Reddet
+                            </button>
+                        }
+                        else if (item.StatusName == "Reddedildi")
+                        {
+                            <button class="btn btn-sm btn-success"
+                                    onclick="updateStatus('@item.Id', 'Approved')">
+                                Onayla
+                            </button>
+                        }
+                    </td>
+                </tr>
+
+                <tr class="collapse" id="@collapseId">
+                    <td colspan="6">
+                        <div class="p-3 bg-light rounded">
+                            <ul class="list-group">
+                                @foreach (var user in item.UserList)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>@user.FullName</span>
+
+                                        @if (user.IsCreator)
+                                        {
+                                            <span class="badge bg-success">Oluşturan</span>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@section Scripts {
+    <script>
+                function approveReservation(id) {
+            updateStatus(id, "Approved", null);
+        }
+
+        function rejectReservation(id) {
+
+            Swal.fire({
+                title: 'Reddetme Açıklaması',
+                input: 'textarea',
+                inputLabel: 'Lütfen reddetme sebebini yazınız',
+                inputPlaceholder: 'Açıklama giriniz...',
+                inputAttributes: {
+                    'aria-label': 'Açıklama'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Reddet',
+                cancelButtonText: 'Vazgeç',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Açıklama zorunludur!';
+                    }
+                }
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+                    updateStatus(id, "Rejected", result.value);
+                }
+
+            });
+        }
+
+        function updateStatus(id, status, description) {
+
+            fetch('/Reservations/UpdateStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: id,
+                    status: status,
+                    rejectDescription: description
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+
+                if (data.succeeded) {
+                    Swal.fire('Başarılı', data.message, 'success')
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire('Hata', data.message, 'error');
+                }
+
+            })
+            .catch(() => {
+                Swal.fire('Sunucu hatası oluştu');
+            });
+        }
+
+    </script>
+}

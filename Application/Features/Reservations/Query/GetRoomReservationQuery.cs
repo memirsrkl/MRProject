@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Common.Extensions;
+using Domain;
 namespace Application.Features.Reservations.Query
 {
     public class GetRoomReservationQuery : IRequest<List<ReservationDTO>>
@@ -27,11 +28,11 @@ namespace Application.Features.Reservations.Query
             public async Task<List<ReservationDTO>> Handle(GetRoomReservationQuery request, CancellationToken cancellationToken)
             {
                 var reservations = await _context.Reservations
-    .Where(r => r.MeetingRoomId == request.roomId && !r.IsDeleted)
+    .Where(r => r.MeetingRoomId == request.roomId && !r.IsDeleted && r.Status!=Enums.ReservationStatus.Rejected)
     .ToListAsync(cancellationToken);
                 var events = reservations.Select(r => new ReservationDTO
                 {
-                    Title = r.Status.GetName(),   // Enum attribute'tan geliyor
+                    Title = r.Status.GetName(),
                     Start = r.StartTime,
                     End = r.EndTime,
                     BackgroundColor = r.Status.GetColor(),

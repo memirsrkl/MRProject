@@ -27,4 +27,9 @@ namespace Application.DTOs
         public Guid Id { get; set; }
         public bool IsAdmin { get; set; }
     }
+    public class UserListForMettings
+    {
+        public string FullName { get; set; }
+        public bool IsCreator { get; set; }
+    }
 }

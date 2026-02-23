@@ -65,11 +65,6 @@
 
 @section Scripts {
 
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
-
     <script>
 
         let calendar;
@@ -91,7 +86,8 @@
         locale: 'tr',
         firstDay: 1,
         height: 650,
-
+        selectable: true,
+        unselectAuto: false,
         slotMinTime: "09:00:00",
         slotMaxTime: "18:00:00",
         slotDuration: "00:30:00",
@@ -111,7 +107,7 @@
 
         validRange: {
         start: new Date(),
-        end: new Date(new Date().setDate(new Date().getDate() + 14))
+        end: new Date(new Date().setDate(new Date().getDate() + 13))
         },
 
         selectable: true,
@@ -140,7 +136,7 @@
         document.getElementById("selectedTimeText").innerText =
         formatTR(start) + " - " + formatTR(end);
 
-        fetch(`/Meeting/GetAllMeetingUser?start=${start.toISOString()}&end=${end.toISOString()}`)
+        fetch(`/Meeting/GetAllMeetingUser?start=${formatForBackend(start)}&end=${formatForBackend(end)}`)
         .then(res => res.json())
         .then(users => {
 
@@ -261,6 +257,13 @@
         const pad = (n) => String(n).padStart(2, '0');
         return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
         }
+        const formatForBackend = (d) => {
+        return d.getFullYear() + "-" +
+        String(d.getMonth() + 1).padStart(2, "0") + "-" +
+        String(d.getDate()).padStart(2, "0") + " " +
+        String(d.getHours()).padStart(2, "0") + ":" +
+        String(d.getMinutes()).padStart(2, "0");
+        };
     </script>
 
 }

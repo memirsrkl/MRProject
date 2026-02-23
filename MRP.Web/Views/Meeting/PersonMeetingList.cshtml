@@ -1,0 +1,57 @@
+﻿@model List<Application.DTOs.MeetingsDTO>
+
+<div class="container mt-4">
+    <h3>Toplantı Listesi</h3>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>Başlangıç</th>
+                <th>Bitiş</th>
+                <th>Oda</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var collapseId = "users_" + item.Id;
+
+                <tr>
+                    <td>@item.Date</td>
+                    <td>@item.StartDate</td>
+                    <td>@item.EndDate</td>
+                    <td>@item.RoomName</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@collapseId">
+                            Kullanıcılar
+                        </button>
+                    </td>
+                </tr>
+
+                <tr class="collapse" id="@collapseId">
+                    <td colspan="5">
+                        <div class="p-3 bg-light rounded">
+                            <strong>Katılımcılar:</strong>
+                            <ul class="list-group mt-2">
+                                @foreach (var user in item.MeetingPersson)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>@user.FullName</span>
+                                        @if (user.IsCreator)
+                                        {
+                                            <span class="badge bg-success">Oluşturan</span>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

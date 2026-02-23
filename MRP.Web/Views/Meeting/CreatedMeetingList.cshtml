@@ -1,0 +1,113 @@
+﻿@model List<Application.DTOs.MeetingsCreatorDTO>
+
+<div class="container mt-4">
+    <h3>Toplantı Listesi</h3>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>Başlangıç</th>
+                <th>Bitiş</th>
+                <th>Oda</th>
+                <th>Statüs</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var collapseId = "users_" + item.Id;
+
+                <tr>
+                    <td>@item.Date.ToShortDateString()</td>
+                    <td>@item.StartDate</td>
+                    <td>@item.EndDate</td>
+                    <td>@item.RoomName</td>
+                    <td>@item.Status</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@collapseId">
+                            Kullanıcılar
+                        </button>
+                        @if (item.Date > DateTime.Now)
+                        {
+                            <button class="btn btn-danger btn-sm"
+                                    onclick="deleteReservation('@item.Id', this)">
+                                Sil
+                            </button>
+                        }
+                    </td>
+                </tr>
+
+                <tr class="collapse" id="@collapseId">
+                    <td colspan="6">
+                        <div class="p-3 bg-light rounded">
+                            <strong>Katılımcılar:</strong>
+                            <ul class="list-group mt-2">
+                                @foreach (var user in item.MeetingPersson)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>@user.FullName</span>
+                                        @if (user.IsCreator)
+                                        {
+                                            <span class="badge bg-success">Oluşturan</span>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@section Scripts {
+    <script>
+
+        function deleteReservation(id, btn) {
+
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Bu rezervasyonu silmek istiyor musunuz?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Evet, sil',
+                cancelButtonText: 'Vazgeç'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                fetch(`/Reservations/DeleteReservation?id=${id}`, {
+                    method: 'POST'
+                })
+                    .then(res => res.json())
+                    .then(data => {
+
+                        if (data.succeeded) {
+
+                            Swal.fire('Silindi!', data.message, 'success');
+
+                            // Satırı DOM'dan kaldır
+                            const row = btn.closest("tr");
+                            const collapseRow = row.nextElementSibling;
+
+                            row.remove();
+                            collapseRow.remove();
+
+                        } else {
+                            Swal.fire('Hata', data.message, 'error');
+                        }
+
+                    })
+                    .catch(() => {
+                        Swal.fire('Sunucu hatası oluştu');
+                    });
+                }
+            });
+        }
+
+    </script>
+}

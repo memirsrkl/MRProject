@@ -1,0 +1,66 @@
+﻿@model List<Application.DTOs.AdminReservationDTO>
+
+<div class="container mt-4">
+    <h3 class="fw-bold mb-4">Tüm Rezervasyonlar</h3>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Tarih</th>
+                <th>Saat</th>
+                <th>Toplantı Odası</th>
+                <th>Durum</th>
+                <th>Kullanıcılar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var collapseId = "users_" + item.Id;
+
+                <tr>
+                    <td>@item.Date</td>
+                    <td>@item.Start - @item.End</td>
+                    <td>@item.MeetingRoomName</td>
+
+                    <td>
+                        <span class="badge"
+                              style="background-color:@item.BackgroundColor;
+                            color:@item.TextColor;
+                            border:1px solid @item.BorderColor;">
+                            @item.StatusName
+                        </span>
+                    </td>
+
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#@collapseId">
+                            Kullanıcıları Göster
+                        </button>
+                    </td>
+                </tr>
+
+                <tr class="collapse" id="@collapseId">
+                    <td colspan="5">
+                        <div class="p-3 bg-light rounded">
+                            <ul class="list-group">
+                                @foreach (var user in item.UserList)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>@user.FullName</span>
+
+                                        @if (user.IsCreator)
+                                        {
+                                            <span class="badge bg-success">Oluşturan</span>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

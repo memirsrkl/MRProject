@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Features.MeetingRoom.Querie;
+using Application.Features.Meetings.Queries;
 using Application.Features.Reservations.Command;
 using Application.Features.Reservations.Query;
 using Domain.Entities;
@@ -44,7 +45,20 @@ namespace MRP.Web.Controllers
         public async Task<IActionResult> CreateReservation([FromBody] CreateReservationDto reservation)
         {
             var response = await Mediator.Send(new CreateReservationCommand(reservation, User.Identity.Name));
-            return Ok();
+            return Ok(response);
+        }
+        [HttpGet]
+        public async Task<IActionResult> PersonMeetingList()
+        {
+            
+            var list = await Mediator.Send(new GetUserPersonMeetingListQuery(User.Identity.Name));
+            return View(list);
+        }
+        [HttpGet]
+        public async Task<IActionResult> CreatedMeetingList()
+        {
+            var list = await Mediator.Send(new GetUserCreaterPersonMeetingListQuery(User.Identity.Name));
+            return View(list);
         }
     }
 }

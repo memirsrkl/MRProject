@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,7 +35,8 @@ public class GetAllMeetingUsersQuery : IRequest<List<AddUserDto>>
                 .Where(r =>
                     r.Reservation.StartTime.Date == request.Date.Date &&
                     request.StartTime < r.Reservation.EndTime &&
-                    request.EndTime > r.Reservation.StartTime
+                    request.EndTime > r.Reservation.StartTime&&
+                    r.Reservation.Status!=Enums.ReservationStatus.Rejected
                 )
                 .Select(r => r.UserId)
                 .Distinct()
