@@ -33,6 +33,7 @@ namespace Application.Features.Reservations.Query
                 {
                     var meetingList = _context.Reservations.Include(t => t.ReservationUsers).ThenInclude(y => y.User).Include(t => t.MeetingRoom).Select(k => new AdminReservationDTO
                     {
+                        Subject = k.MeetingSubject,
                         Date = k.ReservationDate.ToShortDateString(),
                         Id = k.Id,
                         End = k.EndTime.ToString("HH:mm"),

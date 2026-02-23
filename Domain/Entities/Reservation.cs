@@ -16,6 +16,7 @@ namespace Domain.Entities
         public DateTime EndTime { get; set; }
         public Guid MeetingRoomId { get; set; }
         public string? RejectDescription { get; set; }
+        public string MeetingSubject { get; set; }
         public ReservationStatus Status { get; set; }
         public MeetingRooms MeetingRoom { get; set; }
         public Users User { get; set; }

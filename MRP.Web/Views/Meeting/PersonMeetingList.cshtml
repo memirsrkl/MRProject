@@ -6,6 +6,7 @@
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
+                <th>Toplantı Konusu</th>
                 <th>Tarih</th>
                 <th>Başlangıç</th>
                 <th>Bitiş</th>
@@ -19,6 +20,7 @@
                 var collapseId = "users_" + item.Id;
 
                 <tr>
+                    <td>@item.Subject</td>
                     <td>@item.Date</td>
                     <td>@item.StartDate</td>
                     <td>@item.EndDate</td>
@@ -33,7 +35,7 @@
                 </tr>
 
                 <tr class="collapse" id="@collapseId">
-                    <td colspan="5">
+                    <td colspan="6">
                         <div class="p-3 bg-light rounded">
                             <strong>Katılımcılar:</strong>
                             <ul class="list-group mt-2">

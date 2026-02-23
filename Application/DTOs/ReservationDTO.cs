@@ -20,6 +20,7 @@ namespace Application.DTOs
         public Guid RoomId { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
+        public string Subject { get; set; }
         public DateTime Date { get; set; }
         public string StartTime { get; set; }
         public string EndTime { get; set; }
@@ -27,6 +28,7 @@ namespace Application.DTOs
     }
     public class AdminReservationDTO
     {
+        public string Subject { get; set; }
         public string Title { get; set; }
         public string Date { get; set; }
         public string Start { get; set; }

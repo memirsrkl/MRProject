@@ -6,6 +6,7 @@
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
+                <th>Toplantı Konusu</th>
                 <th>Tarih</th>
                 <th>Başlangıç</th>
                 <th>Bitiş</th>
@@ -19,7 +20,11 @@
             {
                 var collapseId = "users_" + item.Id;
 
-                <tr>
+                <tr data-date="@item.Date.ToString("yyyy-MM-dd")"
+                    data-start="@item.StartDate"
+                    data-end="@item.EndDate">
+
+                    <td>@item.Subject</td>
                     <td>@item.Date.ToShortDateString()</td>
                     <td>@item.StartDate</td>
                     <td>@item.EndDate</td>
@@ -31,6 +36,7 @@
                                 data-bs-target="#@collapseId">
                             Kullanıcılar
                         </button>
+
                         @if (item.Date > DateTime.Now)
                         {
                             <button class="btn btn-danger btn-sm"
@@ -42,21 +48,37 @@
                 </tr>
 
                 <tr class="collapse" id="@collapseId">
-                    <td colspan="6">
+                    <td colspan="7">
                         <div class="p-3 bg-light rounded">
+
                             <strong>Katılımcılar:</strong>
-                            <ul class="list-group mt-2">
+
+                            <ul class="list-group mb-3">
                                 @foreach (var user in item.MeetingPersson)
                                 {
-                                    <li class="list-group-item d-flex justify-content-between">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span>@user.FullName</span>
+
                                         @if (user.IsCreator)
                                         {
                                             <span class="badge bg-success">Oluşturan</span>
                                         }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    onclick="removeUser('@item.Id','@user.Id', this)">
+                                                ✖
+                                            </button>
+                                        }
                                     </li>
                                 }
                             </ul>
+
+                            <select class="form-select userSelect"
+                                    data-meeting="@item.Id"
+                                    style="width:100%">
+                            </select>
+
                         </div>
                     </td>
                 </tr>
@@ -65,8 +87,112 @@
     </table>
 </div>
 @section Scripts {
-    <script>
 
+    <script>
+        $(document).ready(function () {
+            $('.userSelect').each(function () {
+
+                const selectElement = $(this);
+                const row = selectElement.closest("tr").prev()[0]; // üstteki ana satır
+
+                const { start, end } = getMeetingDateTime(row);
+
+                selectElement.select2({
+                    placeholder: "Kullanıcı ekle...",
+                    width: '100%',
+                    ajax: {
+                        url: `/Meeting/GetAllMeetingUser?start=${encodeURIComponent(formatLocal(start))}&end=${encodeURIComponent(formatLocal(end))}`,
+                        dataType: 'json',
+                        delay: 250,
+                        processResults: function (data) {
+                            return {
+                                results: data.map(u => ({
+                                    id: u.id,
+                                    text: u.userFullName
+                                }))
+                            };
+                        }
+                    }
+                });
+
+            });
+            $('.userSelect').on('select2:select', function (e) {
+
+                const meetingId = $(this).data('meeting');
+                const userId = e.params.data.id;
+
+                addUser(meetingId, userId);
+            });
+
+        });
+        function getMeetingDateTime(row) {
+
+            const date = row.dataset.date;
+            const startTime = row.dataset.start;
+            const endTime = row.dataset.end;
+
+            const start = new Date(`${date}T${startTime}:00`);
+            const end = new Date(`${date}T${endTime}:00`);
+
+            return { start, end };
+        }
+        function formatLocal(date) {
+            const pad = n => String(n).padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        }
+        function addUser(meetingId, userId) {
+
+            fetch('/Meeting/AddParticipant', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    meetingId: meetingId,
+                    userId: userId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+
+                if (data.succeeded) {
+                    Swal.fire("Başarılı", "Kullanıcı eklendi", "success")
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire("Hata", data.message, "error");
+                }
+
+            });
+        }
+        function removeUser(meetingId, userId, btn) {
+
+            Swal.fire({
+                title: "Emin misiniz?",
+                icon: "warning",
+                showCancelButton: true
+            }).then(result => {
+
+                if (!result.isConfirmed) return;
+
+                fetch('/Meeting/RemoveParticipant', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        meetingId: meetingId,
+                        userId: userId
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+
+                    if (data.succeeded) {
+                        btn.closest("li").remove();
+                    } else {
+                        Swal.fire("Hata", data.message, "error");
+                    }
+
+                });
+
+            });
+        }
         function deleteReservation(id, btn) {
 
             Swal.fire({
@@ -78,36 +204,29 @@
                 cancelButtonText: 'Vazgeç'
             }).then((result) => {
 
-                if (result.isConfirmed) {
+                if (!result.isConfirmed) return;
 
                 fetch(`/Reservations/DeleteReservation?id=${id}`, {
                     method: 'POST'
                 })
-                    .then(res => res.json())
-                    .then(data => {
+                .then(res => res.json())
+                .then(data => {
 
-                        if (data.succeeded) {
+                    if (data.succeeded) {
+                        Swal.fire('Silindi!', data.message, 'success');
 
-                            Swal.fire('Silindi!', data.message, 'success');
+                        const row = btn.closest("tr");
+                        const collapseRow = row.nextElementSibling;
 
-                            // Satırı DOM'dan kaldır
-                            const row = btn.closest("tr");
-                            const collapseRow = row.nextElementSibling;
+                        row.remove();
+                        collapseRow.remove();
+                    } else {
+                        Swal.fire('Hata', data.message, 'error');
+                    }
 
-                            row.remove();
-                            collapseRow.remove();
+                });
 
-                        } else {
-                            Swal.fire('Hata', data.message, 'error');
-                        }
-
-                    })
-                    .catch(() => {
-                        Swal.fire('Sunucu hatası oluştu');
-                    });
-                }
             });
         }
-
     </script>
 }

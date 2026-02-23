@@ -6,6 +6,7 @@
     <table class="table table-bordered table-hover">
         <thead class="table-dark">
             <tr>
+                <th>Toplantı Konusu</th>
                 <th>Tarih</th>
                 <th>Saat</th>
                 <th>Toplantı Odası</th>
@@ -20,6 +21,7 @@
                 var collapseId = "users_" + item.Id;
 
                 <tr>
+                    <td>@item.Subject</td>
                     <td>@item.Date</td>
                     <td>@item.Start - @item.End</td>
                     <td>@item.MeetingRoomName</td>

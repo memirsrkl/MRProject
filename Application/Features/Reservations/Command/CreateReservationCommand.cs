@@ -37,6 +37,7 @@ namespace Application.Features.Reservations.Command
                     CreatedTime = DateTime.Now,
                     EndTime = request.dtos.End,
                     IsDeleted = false,
+                    MeetingSubject =request.dtos.Subject,
                     MeetingRoomId = request.dtos.RoomId,
                     ReservationDate = request.dtos.Date,
                     StartTime = request.dtos.Start,
@@ -72,7 +73,7 @@ namespace Application.Features.Reservations.Command
                 {
 
                 }
-                return new Response<bool>();
+                return new Response<bool>(true);
             }
         }
     }

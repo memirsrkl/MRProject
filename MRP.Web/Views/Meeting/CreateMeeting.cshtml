@@ -32,7 +32,13 @@
         }
 
     </div>
-
+    <div class="mb-3">
+        <label class="form-label fw-bold">Toplantı Konusu</label>
+        <input type="text"
+               id="meetingSubject"
+               class="form-control"
+               placeholder="Toplantı konusunu giriniz..." />
+    </div>
  
     <div class="row mt-4">
         <div class="col-12">
@@ -73,7 +79,8 @@
 
         const wrapper = document.getElementById("calendarWrapper");
         const title = document.getElementById("selectedRoomTitle");
-
+        const startOfWeek = getStartOfWeek(new Date());
+        const endOfNextWeek = getEndOfNextWeek(startOfWeek);
         wrapper.style.display = "block";
         title.innerText = roomName + " Takvimi";
 
@@ -104,10 +111,10 @@
         week: 'Hafta',
         day: 'Gün'
         },
-
+        
         validRange: {
-        start: new Date(),
-        end: new Date(new Date().setDate(new Date().getDate() + 13))
+        start: startOfWeek,
+        end: endOfNextWeek,
         },
 
         selectable: true,
@@ -191,7 +198,11 @@
         });
         }
         function saveReservation() {
-
+        const subject = document.getElementById("meetingSubject").value;
+        if (!subject || subject.trim() === "") {
+            Swal.fire("Hata", "Toplantı konusu zorunludur.", "error");
+            return;
+        }
         const checkedUsers = [];
         document.querySelectorAll(".userCheck:checked")
         .forEach(x => checkedUsers.push(x.value));
@@ -209,6 +220,7 @@
         roomId: window.selectedRoomId,
         Start: toLocalIsoNoZ(window.selectedStart),
         End: toLocalIsoNoZ(window.selectedEnd),
+        subject:subject,
         date: start.toISOString().split("T")[0],
         startTime: start.toTimeString().slice(0,5),
         endTime: end.toTimeString().slice(0,5),
@@ -264,6 +276,20 @@
         String(d.getHours()).padStart(2, "0") + ":" +
         String(d.getMinutes()).padStart(2, "0");
         };
+        function getStartOfWeek(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = (day === 0 ? -6 : 1) - day;
+            d.setDate(d.getDate() + diff);
+            d.setHours(0, 0, 0, 0);
+            return d;
+        }
+        function getEndOfNextWeek(startOfWeek) {
+            const end = new Date(startOfWeek);
+            end.setDate(end.getDate() + 13);
+            end.setHours(23, 59, 59, 999);
+            return end;
+        }
     </script>
 
 }

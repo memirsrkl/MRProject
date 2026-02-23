@@ -37,8 +37,10 @@ namespace Application.Features.Meetings.Queries
                     StartDate = k.StartTime.ToString("HH:mm"),
                     RoomName = k.MeetingRoom.Description,
                     Status=EnumExtensions.GetName(k.Status),
+                    Subject = k.MeetingSubject,
                     MeetingPersson = k.ReservationUsers.Select(t => new UserListForMettings
                     {
+                        Id=t.Id,
                         IsCreator = t.Type == Enums.ParticipantType.Participant ? false : true,
                         FullName = t.User.GetFullName()
                     }).ToList(),
