@@ -28,10 +28,10 @@ namespace MRP.Web.Controllers
             return View(model);
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllMeetingUser(DateTime start, DateTime end)
+        public async Task<IActionResult> GetAllMeetingUser(Guid? id,DateTime start, DateTime end)
         {
             var users = await Mediator.Send(
-                new GetAllMeetingUsersQuery(start.Date, start, end));
+                new GetAllMeetingUsersQuery(id,start.Date, start, end));
 
             return Json(users);
         }

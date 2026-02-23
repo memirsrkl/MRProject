@@ -74,10 +74,18 @@
                                 }
                             </ul>
 
-                            <select class="form-select userSelect"
-                                    data-meeting="@item.Id"
-                                    style="width:100%">
-                            </select>
+                            <div class="mt-3">
+                                <strong>Kullanıcı Ekle:</strong>
+
+                                <div class="user-checkbox-list"
+                                     data-meeting="@item.Id"
+                                     data-date="@item.Date.ToString("yyyy-MM-dd")"
+                                     data-start="@item.StartDate"
+                                     data-end="@item.EndDate">
+         
+                                    <!-- JS burayı dolduracak -->
+                                </div>
+                            </div>
 
                         </div>
                     </td>
@@ -89,6 +97,68 @@
 @section Scripts {
 
     <script>
+                $(document).on("shown.bs.collapse", ".collapse", function () {
+
+            const container = $(this).find(".user-checkbox-list");
+
+            if (container.children().length > 0)
+                return; // zaten yüklenmişse tekrar yükleme
+
+            const meetingId = container.data("meeting");
+            const date = container.data("date");
+            const start = container.data("start");
+            const end = container.data("end");
+
+            fetch(`/Meeting/GetAllMeetingUser?start=${date} ${start}&end=${date} ${end}`)
+                .then(res => res.json())
+                .then(users => {
+
+                    users.forEach(u => {
+
+                        const checkbox = `
+                            <div class="form-check">
+                                <input class="form-check-input user-checkbox"
+                                       type="checkbox"
+                                       value="${u.id}"
+                                       data-meeting="${meetingId}"
+                                       id="user_${u.id}">
+                                <label class="form-check-label" for="user_${u.id}">
+                                    ${u.userFullName}
+                                </label>
+                            </div>
+                        `;
+
+                        container.append(checkbox);
+                    });
+                });
+        });
+                $(document).on("change", ".user-checkbox", function () {
+
+            if (!this.checked) return;
+
+            const meetingId = $(this).data("meeting");
+            const userId = this.value;
+
+            fetch('/Meeting/AddParticipant', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    meetingId: meetingId,
+                    userId: userId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+
+                if (data.succeeded) {
+                    Swal.fire("Başarılı", "Kullanıcı eklendi", "success")
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire("Hata", data.message, "error");
+                }
+
+            });
+        });
         $(document).ready(function () {
             $('.userSelect').each(function () {
 
