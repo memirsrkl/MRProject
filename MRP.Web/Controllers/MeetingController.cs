@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Features.MeetingRoom.Querie;
+using Application.Features.Meetings.Commands;
 using Application.Features.Meetings.Queries;
 using Application.Features.Reservations.Command;
 using Application.Features.Reservations.Query;
@@ -8,6 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
 
 namespace MRP.Web.Controllers
 {
@@ -59,6 +61,18 @@ namespace MRP.Web.Controllers
         {
             var list = await Mediator.Send(new GetUserCreaterPersonMeetingListQuery(User.Identity.Name));
             return View(list);
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddParticipant([FromBody] MettingAddParticipant model)
+        {
+            var response = await Mediator.Send(new AddParticipantCommand(model));
+            return Ok(response);
+        }
+        [HttpPost]
+        public async Task<IActionResult> RemoveParticipant([FromBody] MettingAddParticipant model)
+        {
+            var response = await Mediator.Send(new RemoveParticipantCommand(model));
+            return Ok(response);
         }
     }
 }

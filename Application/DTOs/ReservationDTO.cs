@@ -26,6 +26,12 @@ namespace Application.DTOs
         public string EndTime { get; set; }
         public List<Guid> ParticipantIds { get; set; }
     }
+    public class MettingAddParticipant
+    {
+        public Guid MeetingId { get; set; }
+        public Guid UserId { get; set; }
+
+    }
     public class AdminReservationDTO
     {
         public string Subject { get; set; }
