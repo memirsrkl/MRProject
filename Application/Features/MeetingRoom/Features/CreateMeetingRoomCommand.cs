@@ -22,7 +22,7 @@ namespace Application.Features.MeetingRoom.Features
             {
                 _context = context;
             }
-            public Task<Response<bool>> Handle(CreateMeetingRoomCommand request, CancellationToken cancellationToken)
+            public async Task<Response<bool>> Handle(CreateMeetingRoomCommand request, CancellationToken cancellationToken)
             {
                 MeetingRooms meetingRoom = new MeetingRooms
                 {
@@ -31,8 +31,8 @@ namespace Application.Features.MeetingRoom.Features
                     Capacity = request.Capacity
                 };
                 _context.MeetingRooms.Add(meetingRoom);
-                _context.SaveChangesAsync(cancellationToken);
-                return Task.FromResult(new Response<bool>(true));
+                await _context.SaveChangesAsync(cancellationToken);
+                return new Response<bool>(true);
             }
         }
     }

@@ -71,7 +71,8 @@ namespace MRP.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> RemoveParticipant([FromBody] MettingAddParticipant model)
         {
-            var response = await Mediator.Send(new RemoveParticipantCommand(model));
+            var currentUser = User.Identity.Name;
+            var response = await Mediator.Send(new RemoveParticipantCommand(model, currentUser));
             return Ok(response);
         }
     }

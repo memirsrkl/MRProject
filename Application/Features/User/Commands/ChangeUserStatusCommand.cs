@@ -30,7 +30,7 @@ namespace Application.Features.User.Commands
                 {
                     user.IsAdmin = !user.IsAdmin;
                 }
-                _context.SaveChangesAsync(cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
                 return new Response<bool>(true);
             }
         }

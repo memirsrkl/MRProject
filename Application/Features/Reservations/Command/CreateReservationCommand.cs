@@ -30,6 +30,30 @@ namespace Application.Features.Reservations.Command
             }
             public async Task<Response<bool>> Handle(CreateReservationCommand request, CancellationToken cancellationToken)
             {
+                if (request.dtos.Date.Date < DateTime.Today)
+                    return new Response<bool>("Geçmiş tarihli rezervasyon oluşturulamaz");
+                var today = DateTime.Today;
+                int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+                var startOfThisWeek = today.AddDays(-diff);
+                var endOfNextWeek = startOfThisWeek.AddDays(13);
+
+                if (request.dtos.Date.Date < startOfThisWeek ||
+                    request.dtos.Date.Date > endOfNextWeek)
+                {
+                    return new Response<bool>(
+                        "Sadece bu hafta ve gelecek hafta için rezervasyon oluşturabilirsiniz");
+                }
+                var isConflict = _context.Reservations.Any(r =>
+    r.MeetingRoomId == request.dtos.RoomId &&
+    r.ReservationDate.Date == request.dtos.Date.Date &&
+    r.Status != Enums.ReservationStatus.Rejected &&
+    request.dtos.Start < r.EndTime &&
+    request.dtos.End > r.StartTime
+);
+
+                if (isConflict)
+                    return new Response<bool>(
+                        "Bu tarih ve saat aralığında oda doludur");
                 var user = _context.Users.FirstOrDefault(t => t.UserName == request.CurrentUserName);
                 Reservation reserv = new Reservation
                 {

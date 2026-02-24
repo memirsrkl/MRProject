@@ -28,8 +28,8 @@ namespace Application.Features.Reservations.Query
             }
             public async Task<List<AdminReservationDTO>> Handle(GetAllReservationQuery request, CancellationToken cancellationToken)
             {
-                var userIsAdmin = _context.Users.FirstOrDefault(t => t.UserName == request.currentUserName).IsAdmin;
-                if (userIsAdmin)
+                var userIsAdmin = _context.Users.FirstOrDefault(t => t.UserName == request.currentUserName && t.IsAdmin);
+                if (userIsAdmin!=null)
                 {
                     var meetingList = _context.Reservations.Include(t => t.ReservationUsers).ThenInclude(y => y.User).Include(t => t.MeetingRoom).Select(k => new AdminReservationDTO
                     {

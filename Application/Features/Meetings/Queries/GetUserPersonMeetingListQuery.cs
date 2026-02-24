@@ -27,22 +27,30 @@ namespace Application.Features.Meetings.Queries
             }
             public async Task<List<MeetingsDTO>> Handle(GetUserPersonMeetingListQuery request, CancellationToken cancellationToken)
             {
-                var id = _context.Users.FirstOrDefault(t => t.UserName == request.name).Id;
-                var meetingList = _context.Reservations.Include(t => t.ReservationUsers).ThenInclude(y => y.User).Include(t => t.MeetingRoom).Where(t=>t.ReservationUsers.Any(t=>t.UserId==id)).Select(k => new MeetingsDTO
+                var user = _context.Users.FirstOrDefault(t => t.UserName == request.name);
+                if (user != null)
                 {
-                    Date = k.ReservationDate.ToShortDateString(),
-                    Id = k.Id,
-                    EndDate = k.EndTime.ToString("HH:mm"),
-                    StartDate = k.StartTime.ToString("HH:mm"),
-                    RoomName = k.MeetingRoom.Description,
-                    Subject=k.MeetingSubject,
-                    MeetingPersson = k.ReservationUsers.Select(t => new UserListForMettings
+                    var meetingList = _context.Reservations.Include(t => t.ReservationUsers).ThenInclude(y => y.User).Include(t => t.MeetingRoom).Where(t => t.ReservationUsers.Any(t => t.UserId == user.Id)).Select(k => new MeetingsDTO
                     {
-                        IsCreator = t.Type == Enums.ParticipantType.Participant ? false : true,
-                        FullName = t.User.GetFullName()
-                    }).ToList(),
-                }).ToList();
-                return meetingList;
+                        Date = k.ReservationDate.ToShortDateString(),
+                        Id = k.Id,
+                        EndDate = k.EndTime.ToString("HH:mm"),
+                        StartDate = k.StartTime.ToString("HH:mm"),
+                        RoomName = k.MeetingRoom.Description,
+                        Subject = k.MeetingSubject,
+                        MeetingPersson = k.ReservationUsers.Select(t => new UserListForMettings
+                        {
+                            IsCreator = t.Type == Enums.ParticipantType.Participant ? false : true,
+                            FullName = t.User.GetFullName()
+                        }).ToList(),
+                    }).ToList();
+                    return meetingList;
+                }
+                else
+                {
+                    return null;
+                }
+                
             }
         }
     }
