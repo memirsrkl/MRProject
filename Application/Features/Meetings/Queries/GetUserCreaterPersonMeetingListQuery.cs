@@ -37,6 +37,7 @@ namespace Application.Features.Meetings.Queries
                         EndDate = k.EndTime.ToString("HH:mm"),
                         StartDate = k.StartTime.ToString("HH:mm"),
                         RoomName = k.MeetingRoom.Description,
+                        CreatedTime=(DateTime)k.CreatedTime,
                         Status = EnumExtensions.GetName(k.Status),
                         Subject = k.MeetingSubject,
                         RejectReason=k.RejectDescription,
@@ -46,7 +47,7 @@ namespace Application.Features.Meetings.Queries
                             IsCreator = t.Type == Enums.ParticipantType.Participant ? false : true,
                             FullName = t.User.GetFullName()
                         }).ToList(),
-                    }).ToList();
+                    }).OrderByDescending(t=>t.CreatedTime).ToList();
                     return meetingList;
                 }
                 else

@@ -37,13 +37,14 @@ namespace Application.Features.Meetings.Queries
                         EndDate = k.EndTime.ToString("HH:mm"),
                         StartDate = k.StartTime.ToString("HH:mm"),
                         RoomName = k.MeetingRoom.Description,
+                        CreatedTime=k.CreatedTime,
                         Subject = k.MeetingSubject,
                         MeetingPersson = k.ReservationUsers.Select(t => new UserListForMettings
                         {
                             IsCreator = t.Type == Enums.ParticipantType.Participant ? false : true,
                             FullName = t.User.GetFullName()
                         }).ToList(),
-                    }).ToList();
+                    }).OrderByDescending(t=>t.CreatedTime).ToList();
                     return meetingList;
                 }
                 else
