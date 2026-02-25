@@ -39,6 +39,7 @@ namespace Application.Features.Meetings.Queries
                         RoomName = k.MeetingRoom.Description,
                         Status = EnumExtensions.GetName(k.Status),
                         Subject = k.MeetingSubject,
+                        RejectReason=k.RejectDescription,
                         MeetingPersson = k.ReservationUsers.Select(t => new UserListForMettings
                         {
                             Id = t.Id,

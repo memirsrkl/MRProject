@@ -50,7 +50,11 @@
                 <tr class="collapse" id="@collapseId">
                     <td colspan="7">
                         <div class="p-3 bg-light rounded">
-
+                            @if (item.Status == "Reddedildi")
+                            {
+                                <strong>Red Sebebi</strong>
+                                <p>@item.RejectReason</p>
+                            }
                             <strong>Katılımcılar:</strong>
 
                             <ul class="list-group mb-3">

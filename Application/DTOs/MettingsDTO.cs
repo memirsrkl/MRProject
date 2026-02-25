@@ -24,6 +24,7 @@ namespace Application.DTOs
         public string EndDate { get; set; }
         public string RoomName { get; set; }
         public string Subject { get; set; }
+        public string? RejectReason { get; set; }
         public string Status { get; set; }
         public List<UserListForMettings> MeetingPersson { get; set; }
         public Guid Id { get; set; }
