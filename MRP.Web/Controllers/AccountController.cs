@@ -57,7 +57,6 @@ namespace MRP.Web.Controllers
         }
         private async Task LoginProcess(UserLoginDto user)
         {
-            //await Mediator.Send(new LoginUserCommand(user));
 
             var claims = new List<Claim>
     {

@@ -106,7 +106,7 @@
             const container = $(this).find(".user-checkbox-list");
 
             if (container.children().length > 0)
-                return; // zaten yüklenmişse tekrar yükleme
+                return; 
 
             const meetingId = container.data("meeting");
             const date = container.data("date");
@@ -167,7 +167,7 @@
             $('.userSelect').each(function () {
 
                 const selectElement = $(this);
-                const row = selectElement.closest("tr").prev()[0]; // üstteki ana satır
+                const row = selectElement.closest("tr").prev()[0];
 
                 const { start, end } = getMeetingDateTime(row);
 
