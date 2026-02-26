@@ -108,6 +108,10 @@ Kullanıcı yalnızca toplantı sahibi olduğu rezervasyonu iptal edebilir.
 Geçmiş rezervasyonlar iptal edilemez.
 Yetki kontrolleri backend seviyesinde yapılmaktadır.
 
+Admin kullanıcısı bilgileri atlanmış bu sebeple ekleme yapıyorum.
+kullanıcı adı: admin
+şifre: 154273154273
+
 KİMLİK DOĞRULAMA
 
 Cookie Authentication kullanılmaktadır.
