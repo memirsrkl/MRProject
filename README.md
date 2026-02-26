@@ -18,7 +18,7 @@ Git
 
 MİMARİ YAPI
 
-Proje katmanlı mimari prensiplerine uygun olarak geliştirilmiştir.
+Proje katmanlı mimari prensiplerine uygun olarak Onion Architecture prensiplerine göre geliştirilmiştir.
 
 MRP.Web → Presentation Layer (MVC, Controllers, Views)
 Application → Business Logic (CQRS, MediatR, Commands & Queries)
