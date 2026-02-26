@@ -112,8 +112,9 @@ KİMLİK DOĞRULAMA
 
 Cookie Authentication kullanılmaktadır.
 
+Claim tabanlı rol yönetimi uygulanmıştır.
+Basit kullanıcı kayıt ve giriş sistemi bulunmaktadır.
+
 Admin kullanıcısı bilgileri atlanmış bu sebeple ekleme yapıyorum.
 kullanıcı adı: admin
 şifre: 154273154273
-Claim tabanlı rol yönetimi uygulanmıştır.
-Basit kullanıcı kayıt ve giriş sistemi bulunmaktadır.
